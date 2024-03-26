@@ -32,14 +32,14 @@ const sendOTP = async (email, name, transactionId, amount, date, title) => {
       port: process.env.MAIL_PORT,
       secure: true,
       auth: {
-        user: process.env.MAIL_USER,
+        user: process.env.MAIL_EMAIL,
         pass: process.env.MAIL_PASSWORD,
         // refreshToken: process.env.REFRESH_TOKEN,
       },
     });
 
     const mailOptions = {
-      from: process.env.MAIL_EMAIL,
+      from:{name : process.env.MAIL_USER,address :process.env.MAIL_EMAIL},
       to: email,
       subject: title,
       html: emailtemplatepayment(name, transactionId, amount, date),
