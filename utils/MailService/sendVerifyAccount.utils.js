@@ -6,7 +6,7 @@ const emailTemplateVerifyAccount = (name, otp) => {
     <p>We have received a request for verifying your account. Please use the following OTP (One-Time Password) to proceed:</p>
     <h2>${otp}</h2>
     <p>If you did not request this, please ignore this email.</p>
-    <p>If you have any questions or concerns, please contact our support team at <a href="mailto:support@jordanspicks.com">support@jordanspicks.com</a>.</p>
+    <p>If you have any questions or concerns, please contact our support team at <a href="mailto:${process.env.SUPPORT_MAIL}">${process.env.SUPPORT_MAIL}</a>.</p>
     <p>Thank you!</p>
     <p>Best regards,</p>
     <p>The Jordanspicks.com Team</p>

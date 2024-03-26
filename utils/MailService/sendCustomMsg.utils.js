@@ -4,7 +4,7 @@ const emailtemplateotp = (name, data) => {
   return `<div>
     <p>Dear ${name},</p>
     ${data}
-    <p>If you have any questions or concerns, please contact our support team at <a href="mailto:support@jordanspicks.com">support@jordanspicks.com</a>.</p>
+    <p>If you have any questions or concerns, please contact our support team at <a href="mailto:${process.env.SUPPORT_MAIL}">${process.env.SUPPORT_MAIL}</a>.</p>
 </div>`;
 };
 

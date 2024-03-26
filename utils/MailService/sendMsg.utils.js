@@ -13,7 +13,7 @@ const emailtemplateotp = (name) => {
     </ul>
     <p>To get started, simply log in to your account and browse our selection of sports pick packages. Choose the one that suits your budget and preferences, and place your bets with confidence. You can also join the Penthouse Club Telegram Channel by clicking the link in your account dashboard.</p>
     <p>We are thrilled to have you on board and we look forward to helping you win big!</p>
-    <p>If you have any questions or feedback, please feel free to contact us at <a href="mailto:support@jordanspicks.com">support@jordanspicks.com</a>. We are always happy to hear from you.</p>
+    <p>If you have any questions or feedback, please feel free to contact us at <a href="mailto:${process.env.SUPPORT_MAIL}">${process.env.SUPPORT_MAIL}</a>. We are always happy to hear from you.</p>
     <p>Happy betting!</p>
     <p>Jordan and the Jordanspicks.com team</p>
 </div>`;
