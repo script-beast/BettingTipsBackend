@@ -112,7 +112,7 @@ routes.validPaymentVslPackage = async (req, res) => {
     req.body;
 
   const { error } = userValid.validPaymentVslPackageValidation.validate(
-    req.body
+    req.body,
   );
 
   if (error) {
@@ -171,7 +171,7 @@ routes.validPaymentVslPackage = async (req, res) => {
         package.name,
         package.discountedPrice,
         order.createdAt,
-        "JordansPicks - Payment Confirmation"
+        "JordansPicks - Payment Confirmation",
       );
     }
 
@@ -190,7 +190,7 @@ routes.walletWithdrawVslPackage = async (req, res) => {
     const { packageId } = req.body;
 
     const { error } = userValid.walletWithdrawVslPackageValidation.validate(
-      req.body
+      req.body,
     );
 
     if (error) {
@@ -237,7 +237,7 @@ routes.walletWithdrawVslPackage = async (req, res) => {
       package.name,
       package.discountedPrice,
       newOrder.createdAt,
-      "JordansPicks - Payment Confirmation"
+      "JordansPicks - Payment Confirmation",
     );
 
     return res.status(200).json({ msg: "success", dta: user });

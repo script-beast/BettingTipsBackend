@@ -44,6 +44,35 @@ routes.updateProfile = async (req, res) => {
   return res.status(200).json({ msg: "success", dta: user });
 };
 
+routes.updateAddress = async (req, res) => {
+  const id = req.userId;
+
+  const { address, city, state, zip, country, company } = req.body;
+
+  const { error } = userValid.updateAddressValidation.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  const user = await userModel.findById(id);
+
+  if (!user) {
+    return res.status(404).json({ error: "user not found" });
+  }
+
+  user.address = address;
+  user.city = city;
+  user.state = state;
+  user.zip = zip;
+  user.country = country;
+  if (company) user.company = company;
+
+  await user.save();
+
+  return res.status(200).json({ msg: "success", dta: user });
+};
+
 routes.userDashboard = async (req, res) => {
   try {
     const id = req.userId;
@@ -92,6 +121,11 @@ routes.getProfileShort = async (req, res) => {
         maxdis = ele.specialPackage.discount;
     });
 
+    let isAddress = false;
+    if (user.address && user.city && user.state && user.zip && user.country) {
+      isAddress = true;
+    }
+
     return res.status(200).json({
       msg: "success",
       dta: {
@@ -101,6 +135,7 @@ routes.getProfileShort = async (req, res) => {
         isVerified: user.isVerified,
         defaultDiscount: maxdis,
         cart: user.cart,
+        isAddress,
       },
     });
   } catch (error) {

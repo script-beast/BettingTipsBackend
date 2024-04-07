@@ -5,34 +5,33 @@ const jwt = require("jsonwebtoken");
 const routes = {};
 
 routes.google = passport.authenticate("google", {
-  scope: ["profile"],
+  scope: ["profile", "email"],
 });
 
 routes.googleCallback = passport.authenticate("google", {
-  session: false,
   failureRedirect: "/user/auth/google",
   successRedirect: "/user/auth/success",
 });
 
-routes.facebook = passport.authenticate("facebook", {
-  scope: ["email"],
-});
+// routes.facebook = passport.authenticate("facebook", {
+//   scope: ["email"],
+// });
 
-routes.facebookCallback = passport.authenticate("facebook", {
-  session: false,
-  failureRedirect: "/user/auth/facebook",
-  successRedirect: "/user/auth/success",
-});
+// routes.facebookCallback = passport.authenticate("facebook", {
+//   session: false,
+//   failureRedirect: "/user/auth/facebook",
+//   successRedirect: "/user/auth/success",
+// });
 
-routes.apple = passport.authenticate("apple", {
-  scope: ["email"],
-});
+// routes.apple = passport.authenticate("apple", {
+//   scope: ["email"],
+// });
 
-routes.appleCallback = passport.authenticate("apple", {
-  session: false,
-  failureRedirect: "/user/auth/apple",
-  successRedirect: "/user/auth/success",
-});
+// routes.appleCallback = passport.authenticate("apple", {
+//   session: false,
+//   failureRedirect: "/user/auth/apple",
+//   successRedirect: "/user/auth/success",
+// });
 
 routes.redirect = (req, res) => {
   res.redirect("/");
@@ -40,8 +39,8 @@ routes.redirect = (req, res) => {
 
 routes.success = async (req, res) => {
   try {
-    console.log(req);
-    console.log(req.user.id);
+    console.log(req.user);
+    // console.log(req.user.id);
     if (req.user) {
       const user = req.user._json;
 
@@ -86,13 +85,13 @@ routes.success = async (req, res) => {
         const token = jwt.sign(
           { user: userExists._id },
           process.env.JWT_SECRET,
-          { expiresIn: "24h" }
+          { expiresIn: "24h" },
         );
 
         const refreshToken = jwt.sign(
           { user: userExists._id },
           process.env.REFRESH_TOKEN_PRIVATE_KEY,
-          { expiresIn: "1y" }
+          { expiresIn: "1y" },
         );
 
         res.redirect(
@@ -100,7 +99,7 @@ routes.success = async (req, res) => {
             "auth/social?token=" +
             token +
             "&refreshToken=" +
-            refreshToken
+            refreshToken,
         );
       } else {
         const newUser = new userModel({
@@ -113,12 +112,12 @@ routes.success = async (req, res) => {
         const token = jwt.sign(
           { user: savedUser._id },
           process.env.JWT_SECRET,
-          { expiresIn: "24h" }
+          { expiresIn: "24h" },
         );
         const refreshToken = jwt.sign(
           { user: savedUser._id },
           process.env.REFRESH_TOKEN_PRIVATE_KEY,
-          { expiresIn: "1y" }
+          { expiresIn: "1y" },
         );
 
         res.redirect(
@@ -126,7 +125,7 @@ routes.success = async (req, res) => {
             "auth/social?token=" +
             token +
             "&refreshToken=" +
-            refreshToken
+            refreshToken,
         );
       }
     } else res.status(401).json("Unauthorized");

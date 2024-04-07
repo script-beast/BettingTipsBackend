@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
         if (!mongoose.Types.ObjectId.isValid(id))
           return res.status(404).json({ error: "No user with that id" });
         const user = await userModel.findById(id);
-        if (!user) return res.status(404).json({ error: "Invalid Token" });
+        if (!user) return res.status(401).json({ error: "Invalid Token" });
         req.userId = id;
         next();
       } catch (err) {

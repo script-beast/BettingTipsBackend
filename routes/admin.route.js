@@ -29,7 +29,7 @@ router.patch("/updatePackageStatus/:id", auth, controller.updatePackageStatus);
 router.patch(
   "/updateVslPackageStatus/:id",
   auth,
-  controller.updateVslPackageStatus
+  controller.updateVslPackageStatus,
 );
 router.put("/updatePackage/:id", auth, controller.updatePackage);
 router.post("/giftPackage", auth, controller.giftPackage);
@@ -40,7 +40,7 @@ router.delete("/deletePackage/:id", auth, controller.deletePackage);
 router.delete(
   "/deleteSpecialPackage/:id",
   auth,
-  controller.deleteSpecialPackage
+  controller.deleteSpecialPackage,
 );
 router.delete("/deleteStore/:id", auth, controller.deleteStore);
 router.delete("/deleteVslPackage/:id", auth, controller.deleteVslPackage);
@@ -50,7 +50,7 @@ router.get("/deletedSpecialPackages", auth, controller.deletedSpecialPackage);
 router.get("/bulkPackageMail", auth, controller.bulkPackageMail);
 router.post("/bulkCustomMail", auth, controller.bulkCustomMail);
 router.get("/getUser/:id", auth, controller.getUserById);
-router.patch("/updateUserStatus/:id",auth, controller.updateUserStatus);
-router.get("/directupdate",auth, controller.directupdate);
+router.patch("/updateUserStatus/:id", auth, controller.updateUserStatus);
+router.get("/directupdate", auth, controller.directupdate);
 
 module.exports = router;

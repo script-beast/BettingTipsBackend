@@ -17,7 +17,7 @@ const MonthlyRecurringCheck = corn.schedule("0 1 * * *", async () => {
       const recurringOrder = recurringOrders[i];
 
       const subscription = await stripe.subscriptions.retrieve(
-        recurringOrder.stripeSubscriptionId
+        recurringOrder.stripeSubscriptionId,
       );
       if (subscription.status !== "active") {
         const orderHistoryId =

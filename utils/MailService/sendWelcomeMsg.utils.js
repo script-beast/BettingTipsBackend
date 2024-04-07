@@ -200,7 +200,7 @@ const sendOTP = async (email, otp, title) => {
     });
 
     const mailOptions = {
-      from:{name : process.env.MAIL_USER,address :process.env.MAIL_EMAIL},
+      from: { name: process.env.MAIL_USER, address: process.env.MAIL_EMAIL },
       to: email,
       subject: title,
       html: emailtemplateotp(otp),
@@ -216,4 +216,3 @@ const sendOTP = async (email, otp, title) => {
 
 module.exports = sendOTP;
 // export default sendOTP;
-

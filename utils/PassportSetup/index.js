@@ -8,12 +8,12 @@ const GoogleStrategy = require("./GoogleAuth");
 // passport.use(FacebookStrategy);
 // passport.use("google", GoogleStrategy);
 
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
+// passport.serializeUser((user, done) => {
+//   done(null, user);
+// });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
-});
+// passport.deserializeUser((user, done) => {
+//   done(null, user);
+// });
 
 module.exports = passport;

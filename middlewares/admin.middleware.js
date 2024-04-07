@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
         if (!mongoose.Types.ObjectId.isValid(id))
           return res.status(404).json({ error: "No user with that id" });
         const user = await adminModel.findById(id);
-        if (!user) return res.status(404).json({ error: "User not found" });
+        if (!user) return res.status(401).json({ error: "User not found" });
         req.userId = id;
         next();
       } catch (err) {

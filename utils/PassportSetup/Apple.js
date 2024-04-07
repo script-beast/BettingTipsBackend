@@ -11,8 +11,9 @@ passport.use(
       privateKeyLocation: process.env.APPLE_PRIVATE_KEY,
       passReqToCallback: true,
     },
-    async (req, accessToken, refreshToken, profile, done) => done(null, profile)
-  )
+    async (req, accessToken, refreshToken, profile, done) =>
+      done(null, profile),
+  ),
 );
 
 module.exports = passport;

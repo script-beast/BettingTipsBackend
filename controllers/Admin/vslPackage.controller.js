@@ -106,7 +106,7 @@ routes.updateVslPackageStatus = async (req, res) => {
   let { status, result } = req.body;
 
   const { error } = adminValid.updateVslPackageStatusValidation.validate(
-    req.body
+    req.body,
   );
 
   if (error) {
@@ -146,7 +146,7 @@ routes.updateVslPackageStatus = async (req, res) => {
       await userModel.findOneAndUpdate(
         { _id: userId },
         { $inc: { wallet: orders[0].vslPackage.discountedPrice.toFixed(2) } },
-        { new: true }
+        { new: true },
       );
 
       const newOrder = await orderHistoryModel.create({
@@ -160,7 +160,7 @@ routes.updateVslPackageStatus = async (req, res) => {
       await userModel.findOneAndUpdate(
         { _id: userId },
         { $push: { orderHistory: newOrder._id } },
-        { new: true }
+        { new: true },
       );
     });
   }
@@ -170,7 +170,7 @@ routes.updateVslPackageStatus = async (req, res) => {
   const updatedPackage = await vslPackageModel.findOneAndUpdate(
     { _id: id },
     { status, result },
-    { new: true }
+    { new: true },
   );
 
   return res.status(201).json({ msg: "success", dta: updatedPackage });
@@ -234,7 +234,7 @@ routes.updateVslPackage = async (req, res) => {
         saleTitle,
         videoURL,
       },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updatedPackage });
@@ -265,7 +265,7 @@ routes.deleteVslPackage = async (req, res) => {
     await vslPackageModel.findOneAndUpdate(
       { _id: id },
       { isDeleted: true, status: "inactive" },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success" });

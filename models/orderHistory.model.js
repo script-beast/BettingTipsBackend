@@ -41,7 +41,7 @@ const orderHistorySchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["Credit", "Debit","Recuring"],
+    enum: ["Credit", "Debit", "Recuring"],
   },
   method: {
     type: String,

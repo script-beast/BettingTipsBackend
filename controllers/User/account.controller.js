@@ -75,7 +75,7 @@ routes.createUser = async (req, res) => {
     sendMsg(
       newuser.email,
       newuser.name,
-      "JordansPicks - Welcome to JordansPicks"
+      "JordansPicks - Welcome to JordansPicks",
     );
 
     return res
@@ -118,7 +118,7 @@ routes.login = async (req, res) => {
       process.env.REFRESH_TOKEN_PRIVATE_KEY,
       {
         expiresIn: "1y",
-      }
+      },
     );
 
     const newuser = user.toObject();
@@ -167,7 +167,7 @@ routes.generateOTP = async (req, res) => {
       user.email,
       user.name,
       user.verificationCode,
-      "JordansPicks - Verify Account"
+      "JordansPicks - Verify Account",
     );
 
     return res.status(201).json({ msg: "Email sent" });
@@ -283,7 +283,7 @@ routes.resetPassOTP = async (req, res) => {
       user.email,
       user.name,
       user.verificationCode,
-      "JordansPicks - Reset Password"
+      "JordansPicks - Reset Password",
     );
 
     return res.status(201).json({ msg: "Email sent" });
@@ -369,7 +369,7 @@ routes.refreshAccessToken = async (req, res) => {
   try {
     const decoded = jwt.verify(
       refreshToken,
-      process.env.REFRESH_TOKEN_PRIVATE_KEY
+      process.env.REFRESH_TOKEN_PRIVATE_KEY,
     );
 
     const id = decoded.id;

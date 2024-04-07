@@ -94,7 +94,7 @@ routes.updateStore = async (req, res) => {
         price: parseFloat(price).toFixed(2) || 0,
         credits,
       },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updateStore });
@@ -116,7 +116,7 @@ routes.deleteStore = async (req, res) => {
     const updateStore = await storeModel.findOneAndUpdate(
       { _id: id },
       { isDeleted: true },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updateStore });

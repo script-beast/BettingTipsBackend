@@ -54,6 +54,24 @@ const user = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  address: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  state: {
+    type: String,
+  },
+  zip: {
+    type: String,
+  },
+  country: {
+    type: String,
+  },
+  company: {
+    type: String,
+  },
   package: [
     {
       type: mongoose.Schema.Types.ObjectId,

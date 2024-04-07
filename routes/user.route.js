@@ -1,6 +1,7 @@
 const Express = require("express");
 const userController = require("../controllers/user.controller");
 const auth = require("../middlewares/user.middleware");
+const passport = require("passport");
 
 const router = Express.Router();
 
@@ -27,37 +28,38 @@ router.get("/getTransactions", auth, userController.getTransactions);
 router.get(
   "/getRecurringTransactions",
   auth,
-  userController.getRecurringTransactions
+  userController.getRecurringTransactions,
 );
 router.patch("/updateProfile", auth, userController.updateProfile);
+router.patch("/updateAddress", auth, userController.updateAddress);
 router.post("/createIntentPackage", auth, userController.buyPackage);
 router.post("/validatePaymentPackage", userController.validPaymentPackage);
 router.post("/createIntentVslPackage", auth, userController.buyVslPackage);
 router.post(
   "/validatePaymentVslPackage",
   auth,
-  userController.validPaymentVslPackage
+  userController.validPaymentVslPackage,
 );
 router.post(
   "/walletWithdrawPackage",
   auth,
-  userController.walletWithdrawPackage
+  userController.walletWithdrawPackage,
 );
 router.post(
   "/walletWithdrawVslPackage",
   auth,
-  userController.walletWithdrawVslPackage
+  userController.walletWithdrawVslPackage,
 );
 router.post("/createIntentStore", auth, userController.buyStore);
 router.post("/validatePaymentStore", userController.validPaymentStore);
 router.post(
   "/createIntentSpecialPackage",
   auth,
-  userController.buySpecialPackage
+  userController.buySpecialPackage,
 );
 router.post(
   "/validatePaymentSpecialPackage",
-  userController.validPaymentSpecialPackage
+  userController.validPaymentSpecialPackage,
 );
 
 router.post("/addItemToCart", auth, userController.addItemToCart);
@@ -72,39 +74,58 @@ router.get("/getReferredUsers", auth, userController.getReferredUsers);
 router.post(
   "/createReccuringOrderMonthly",
   auth,
-  userController.createReccuringOrderMonthly
+  userController.createReccuringOrderMonthly,
 );
 router.post(
   "/validPaymentReccuringOrderMonthly",
-  userController.validPaymentReccuringOrderMonthly
+  userController.validPaymentReccuringOrderMonthly,
 );
 
 router.post(
   "/createReccuringOrderYearly",
   auth,
-  userController.createReccuringOrderYearly
+  userController.createReccuringOrderYearly,
 );
 
 router.post(
   "/validPaymentReccuringOrderYearly",
-  userController.validPaymentReccuringOrderYearly
+  userController.validPaymentReccuringOrderYearly,
 );
 
 router.delete(
   "/cancelRecurringOrder/:id",
   auth,
-  userController.cancelRecurringOrder
+  userController.cancelRecurringOrder,
 );
 
+// New Payment Routes
+router.post("/buyPackageAuthorize", auth, userController.buyPackageAuthorize);
+router.post("/buyStoreAuthorize", auth, userController.buyStoreAuthorize);
+router.post(
+  "/createReccuringOrderMonthlyAuthorize",
+  auth,
+  userController.createReccuringOrderMonthlyAuthorize,
+);
+router.post(
+  "/createReccuringOrderYearlyAuthorize",
+  auth,
+  userController.createReccuringOrderYearlyAuthorize,
+);
+router.delete(
+  "/cancelRecurringOrderAuthorize/:id",
+  auth,
+  userController.cancelRecurringOrderAuthorize,
+);
+router.post("/paymentCartAuthorize", auth, userController.paymentCartAuthorize);
 // -----------------------
 
-router.get("/auth/facebook", userController.facebook);
-router.get("/auth/facebook/callback", userController.facebookCallback);
-router.get("/auth/apple", userController.apple);
-router.get("/auth/apple/callback", userController.appleCallback);
+// router.get("/auth/facebook", userController.facebook);
+// router.get("/auth/facebook/callback", userController.facebookCallback);
+// router.get("/auth/apple", userController.apple);
+// router.get("/auth/apple/callback", userController.appleCallback);
 router.get("/auth/success", userController.success);
 
-router.get("/auth/google", userController.google, userController.redirect);
+router.get("/auth/google", userController.google);
 router.get("/auth/google/callback", userController.googleCallback);
 
 module.exports = router;

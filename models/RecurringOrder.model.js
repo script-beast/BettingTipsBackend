@@ -22,11 +22,11 @@ const reccuringOrderSchema = new mongoose.Schema({
   },
   stripeCustomerId: {
     type: String,
-    required: true,
+    // required: true,
   },
   stripeSubscriptionId: {
     type: String,
-    required: true,
+    // required: true,
   },
   validTill: {
     type: Date,
@@ -44,6 +44,9 @@ const reccuringOrderSchema = new mongoose.Schema({
   },
   paymentIntentId: {
     type: String,
+  },
+  authorizeId: {
+    type: Number,
   },
   createdAt: {
     type: Date,

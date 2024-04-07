@@ -4,6 +4,9 @@ const specialPackageModel = require("../../models/specialPackage.model");
 const reccuringOrderModel = require("../../models/RecurringOrder.model");
 
 const sendPayment = require("../../utils/MailService/sendPayment.utils");
+const recurringMonthly = require("../../utils/Payment/Authorize/recurringMonthly.utils");
+const cancelRecurringOrder = require("../../utils/Payment/Authorize/cancelRecurring.utils");
+const RSA_Decryption = require("../../utils/CipherText/RSA_Decryption.utils");
 
 const routes = {};
 
@@ -193,7 +196,7 @@ routes.validPaymentSpecialPackage = async (req, res) => {
         package.name,
         package.price.toFixed(2),
         order.createdAt,
-        "JordansPicks - Payment Confirmation"
+        "JordansPicks - Payment Confirmation",
       );
     }
 
@@ -334,7 +337,8 @@ routes.validPaymentReccuringOrderMonthly = async (req, res) => {
 
       user.reccuringOrder.push(reccuringOrder._id);
       // user.orderHistory.push(order._id);
-      user.specialPackage.push(reccuringOrder.specialPackage);
+      if (!user.specialPackage.includes(reccuringOrder.specialPackage))
+        user.specialPackage.push(reccuringOrder.specialPackage);
 
       // reccuringOrder.orderHistory.push(order._id);
       reccuringOrder.status = "active";
@@ -480,7 +484,8 @@ routes.validPaymentReccuringOrderYearly = async (req, res) => {
 
       user.reccuringOrder.push(reccuringOrder._id);
       // user.orderHistory.push(order._id);
-      user.specialPackage.push(reccuringOrder.specialPackage);
+      if (!user.specialPackage.includes(reccuringOrder.specialPackage))
+        user.specialPackage.push(reccuringOrder.specialPackage);
 
       // reccuringOrder.orderHistory.push(order._id);
       reccuringOrder.status = "active";
@@ -520,6 +525,172 @@ routes.cancelRecurringOrder = async (req, res) => {
     const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
     await stripe.subscriptions.cancel(order.stripeSubscriptionId);
+
+    order.status = "inactive";
+    await order.save();
+
+    return res.status(200).json({ msg: "success" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "internal server error" });
+  }
+};
+
+routes.createReccuringOrderMonthlyAuthorize = async (req, res) => {
+  const { specialPackageId, encryptedCardDetails } = req.body;
+  const userId = req.userId;
+
+  try {
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const package = await specialPackageModel.findById(specialPackageId);
+
+    const [cardNumber, cardExpiryDate, cardCvc] =
+      RSA_Decryption(encryptedCardDetails).split(",");
+
+    const cardDetails = {
+      number: cardNumber,
+      expiryDate: cardExpiryDate,
+      cvc: cardCvc,
+    };
+    console.log(package);
+    if (!package) {
+      return res.status(404).json({ error: "package not found" });
+    }
+
+    const existing = await reccuringOrderModel.findOne({
+      userId: userId,
+      specialPackage: specialPackageId,
+    });
+
+    if (existing && existing.status === "active") {
+      return res.status(400).json({ error: "order already exists" });
+    }
+
+    let response;
+    try {
+      response = await recurringMonthly(cardDetails, package, user);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+
+    const order = await reccuringOrderModel.create({
+      userId: userId,
+      specialPackage: specialPackageId,
+      price: package.monthlyPrice,
+      authorizeId: response,
+      validTill: new Date().setMonth(new Date().getMonth() + 1),
+      type: "monthly",
+      status: "active",
+    });
+
+    user.reccuringOrder.push(order._id);
+    if (!user.specialPackage.includes(specialPackageId))
+      user.specialPackage.push(specialPackageId);
+
+    await user.save();
+
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "internal server error" });
+  }
+};
+
+routes.createReccuringOrderYearlyAuthorize = async (req, res) => {
+  const { specialPackageId, encryptedCardDetails } = req.body;
+  const userId = req.userId;
+
+  try {
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const package = await specialPackageModel.findById(specialPackageId);
+
+    const [cardNumber, cardExpiryDate, cardCvc] =
+      RSA_Decryption(encryptedCardDetails).split(",");
+
+    const cardDetails = {
+      number: cardNumber,
+      expiryDate: cardExpiryDate,
+      cvc: cardCvc,
+    };
+
+    if (!package) {
+      return res.status(404).json({ error: "package not found" });
+    }
+
+    const existing = await reccuringOrderModel.findOne({
+      userId: userId,
+      specialPackage: specialPackageId,
+    });
+
+    if (existing && existing.status === "active") {
+      return res.status(400).json({ error: "order already exists" });
+    }
+
+    let response;
+    try {
+      response = await recurringMonthly(cardDetails, package, user);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+
+    const order = await reccuringOrderModel.create({
+      userId: userId,
+      specialPackage: specialPackageId,
+      price: package.yearlyPrice,
+      authorizeId: response,
+      validTill: new Date().setMonth(new Date().getMonth() + 12),
+      type: "yearly",
+      status: "active",
+    });
+
+    user.reccuringOrder.push(order._id);
+    if (!user.specialPackage.includes(specialPackageId))
+      user.specialPackage.push(specialPackageId);
+
+    await user.save();
+
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "internal server error" });
+  }
+};
+
+routes.cancelRecurringOrderAuthorize = async (req, res) => {
+  const userId = req.userId;
+  const { id } = req.params;
+
+  try {
+    const user = await userModel.findById(userId);
+    const order = await reccuringOrderModel.findOne({
+      _id: id,
+      userId: userId,
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    if (!order) {
+      return res.status(404).json({ error: "order not found" });
+    }
+
+    let response;
+    try {
+      response = await cancelRecurringOrder(order.authorizeId);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
 
     order.status = "inactive";
     await order.save();

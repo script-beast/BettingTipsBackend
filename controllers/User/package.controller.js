@@ -3,6 +3,8 @@ const orderHistoryModel = require("../../models/orderHistory.model");
 const packageModel = require("../../models/package.model");
 
 const sendPayment = require("../../utils/MailService/sendPayment.utils");
+const oneTimePayment = require("../../utils/Payment/Authorize/oneTimePayment.utils");
+const RSA_Decryption = require("../../utils/CipherText/RSA_Decryption.utils");
 
 const userValid = require("../../validations/user.joi");
 
@@ -24,6 +26,7 @@ routes.getPackage = async (req, res) => {
   try {
     const uid = req.userId;
     const id = req.params.id;
+    console.log(id, uid);
     const package = await packageModel.findById(id);
     const user = await userModel.findById(uid).populate("package");
 
@@ -152,10 +155,6 @@ routes.validPaymentPackage = async (req, res) => {
     }
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-    console.log(paymentIntent);
-    console.log(cardDeduction);
-    console.log(typeof cardDeduction);
-
     if (paymentIntent.status === "succeeded") {
       const order = await orderHistoryModel.create({
         user: id,
@@ -280,6 +279,119 @@ routes.walletWithdrawPackage = async (req, res) => {
     );
 
     return res.status(200).json({ msg: "success", dta: user });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "internal server error" });
+  }
+};
+
+routes.buyPackageAuthorize = async (req, res) => {
+  try {
+    const { encryptedCardDetails, packageId, walletDeduction, cardDeduction } =
+      req.body;
+    const id = req.userId;
+
+    const user = await userModel.findById(id);
+    const package = await packageModel.findById(packageId);
+
+    const [cardNumber, cardExpiryDate, cardCvc] =
+      RSA_Decryption(encryptedCardDetails).split(",");
+
+    const cardDetails = {
+      number: cardNumber,
+      expiryDate: cardExpiryDate,
+      cvc: cardCvc,
+    };
+
+    // console.log(package);
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    if (user.package.includes(packageId)) {
+      return res.status(400).json({ error: "package already purchased" });
+    }
+
+    if (!package) {
+      return res.status(404).json({ error: "package not found" });
+    }
+
+    if (package.endDate < Date.now()) {
+      return res.status(400).json({ error: "package expired" });
+    }
+
+    if (cardDeduction <= 0)
+      return res.status(400).json({ error: "amount must be greater than 0" });
+
+    console.log(walletDeduction, user.wallet);
+    if (walletDeduction > 0 && user.wallet < walletDeduction) {
+      return res.status(400).json({ error: "insufficient balance" });
+    }
+
+    try {
+      await oneTimePayment(cardDetails, package, cardDeduction, user);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+
+    const order = await orderHistoryModel.create({
+      user: id,
+      package: packageId,
+      status: "active",
+      desc: `Package - ${package.name} purchased (card)`,
+      price: parseFloat(cardDeduction).toFixed(2),
+      type: "Debit",
+      method: "Card",
+    });
+
+    if (user.referredBy) {
+      const refUser = await userModel.findById(user.referredBy);
+      if (refUser) {
+        const val = +(0.25 * +cardDeduction).toFixed(2);
+        refUser.wallet += val;
+        const refOrder = await orderHistoryModel.create({
+          user: refUser._id,
+          status: "active",
+          desc: `Bonus from ${user.name} purchase`,
+          price: val.toFixed(2),
+          type: "Credit",
+          method: "Wallet",
+        });
+        refUser.orderHistory.push(refOrder._id);
+        await refUser.save();
+      }
+    }
+
+    if (walletDeduction > 0) {
+      const walletOrder = await orderHistoryModel.create({
+        user: id,
+        package: packageId,
+        status: "active",
+        desc: `Package - ${package.name} purchased (wallet)`,
+        price: parseFloat(walletDeduction).toFixed(2),
+        type: "Debit",
+        method: "Wallet",
+      });
+      user.orderHistory.push(walletOrder._id);
+      user.wallet = user.wallet - walletDeduction;
+    }
+
+    user.package.push(package._id);
+    user.orderHistory.push(order._id);
+
+    await user.save();
+    sendPayment(
+      user.email,
+      user.name,
+      package.name,
+      package.price.toFixed(2),
+      order.createdAt,
+      "JordansPicks - Payment Confirmation"
+    );
+
+    return res.send({
+      msg: "success",
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "internal server error" });

@@ -17,9 +17,12 @@ app.use(
     name: "session",
     keys: ["key1"],
     maxAge: 24 * 60 * 60 * 1000,
-  })
+  }),
 );
+
 app.set("trust proxy", true);
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -48,6 +51,7 @@ const startserver = () => {
   try {
     app.listen(PORT, () => {
       initializeTask();
+      console.log("Change admin pass");
       console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {

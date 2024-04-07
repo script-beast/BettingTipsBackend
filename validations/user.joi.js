@@ -39,6 +39,16 @@ const updateProfileValidation = Joi.object({
   newPassword: Joi.string(),
 });
 
+// address, city, state, zip, country, company
+const updateAddressValidation = Joi.object({
+  address: Joi.string().required(),
+  city: Joi.string().required(),
+  state: Joi.string().required(),
+  zip: Joi.string().required(),
+  country: Joi.string().required(),
+  company: Joi.string(),
+});
+
 const buyPackageValidation = Joi.object({
   packageId: Joi.string().required(),
   amount: Joi.number().required().strict(),
@@ -79,6 +89,7 @@ module.exports = {
   resetPasswordValidation,
   contactUsValidation,
   updateProfileValidation,
+  updateAddressValidation,
   buyPackageValidation,
   validPaymentPackageValidation,
   buyVslPackageValidation,

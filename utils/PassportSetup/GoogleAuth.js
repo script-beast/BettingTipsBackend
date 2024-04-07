@@ -9,9 +9,19 @@ passport.use(
       callbackURL: "/user/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
-      done(null, profile);
-    }
-  )
+      console.log(profile);
+      return done(null, profile);
+    },
+  ),
 );
 
-module.exports = passport;
+passport.serializeUser((user, done) => {
+  console.log(user);
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+// module.exports = passport;

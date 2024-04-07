@@ -172,7 +172,7 @@ routes.updatePackageStatus = async (req, res) => {
         await userModel.findOneAndUpdate(
           { _id: userId },
           { $inc: { wallet: orders[0].package.price.toFixed(2) } },
-          { new: true }
+          { new: true },
         );
 
         const newOrder = await orderHistoryModel.create({
@@ -188,7 +188,7 @@ routes.updatePackageStatus = async (req, res) => {
         await userModel.findOneAndUpdate(
           { _id: userId },
           { $push: { orderHistory: newOrder._id } },
-          { new: true }
+          { new: true },
         );
       });
     }
@@ -198,7 +198,7 @@ routes.updatePackageStatus = async (req, res) => {
     const updatedPackage = await packageModel.findOneAndUpdate(
       { _id: id },
       { status, result },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updatedPackage });
@@ -266,7 +266,7 @@ routes.updatePackage = async (req, res) => {
         sports,
         category,
       },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updatedPackage });
@@ -291,7 +291,7 @@ routes.deletePackage = async (req, res) => {
     await packageModel.findOneAndUpdate(
       { _id: id },
       { isDeleted: true, status: "inactive" },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success" });
@@ -342,7 +342,7 @@ routes.giftPackage = async (req, res) => {
     await userModel.findOneAndUpdate(
       { _id: userId },
       { $push: { package: packageId } },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success" });

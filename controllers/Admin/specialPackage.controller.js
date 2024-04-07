@@ -58,7 +58,7 @@ routes.addSpecialPackage = async (req, res) => {
     videoURL,
   } = req.body;
 
-  console.log(process.env.STRIPE_SECRET_KEY);
+  // console.log(process.env.STRIPE_SECRET_KEY);
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
   try {
@@ -195,7 +195,7 @@ routes.updateSpecialPackage = async (req, res) => {
         videoURL,
         discount,
       },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updatedPackage });
@@ -231,7 +231,7 @@ routes.deleteSpecialPackage = async (req, res) => {
     await specialPackageModel.findOneAndUpdate(
       { _id: id },
       { isDeleted: true },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success" });

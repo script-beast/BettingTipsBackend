@@ -23,7 +23,9 @@ const contactSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: function(){return Date.now()},
+    default: function () {
+      return Date.now();
+    },
   },
 });
 

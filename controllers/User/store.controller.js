@@ -3,6 +3,8 @@ const orderHistoryModel = require("../../models/orderHistory.model");
 const storeModel = require("../../models/store.model");
 
 const sendPayment = require("../../utils/MailService/sendPayment.utils");
+const oneTimePayment = require("../../utils/Payment/Authorize/oneTimePayment.utils");
+const RSA_Decryption = require("../../utils/CipherText/RSA_Decryption.utils");
 
 const routes = {};
 
@@ -158,7 +160,7 @@ routes.validPaymentStore = async (req, res) => {
         store.name,
         store.price.toFixed(2),
         order.createdAt,
-        "JordansPicks - Payment Confirmation"
+        "JordansPicks - Payment Confirmation",
       );
     }
 
@@ -168,6 +170,88 @@ routes.validPaymentStore = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(200).json({ status: "Failed" });
+  }
+};
+
+routes.buyStoreAuthorize = async (req, res) => {
+  const { encryptedCardDetails, storeId } = req.body;
+  const id = req.userId;
+
+  try {
+    const user = await userModel.findById(id);
+    const store = await storeModel.findById(storeId);
+
+    const [cardNumber, cardExpiryDate, cardCvc] =
+      RSA_Decryption(encryptedCardDetails).split(",");
+
+    const cardDetails = {
+      number: cardNumber,
+      expiryDate: cardExpiryDate,
+      cvc: cardCvc,
+    };
+
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    if (!store) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    try {
+      await oneTimePayment(cardDetails, store, store.price.toFixed(2), user);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+
+    const order = await orderHistoryModel.create({
+      user: id,
+      store: storeId,
+      status: "active",
+      desc: `Store - ${store.name} purchased`,
+      price: store.price.toFixed(2),
+      type: "Debit",
+      method: "Card",
+    });
+
+    if (user.referredBy) {
+      const refUser = await userModel.findById(user.referredBy);
+      if (refUser) {
+        const val = +(0.25 * +cardDeduction).toFixed(2);
+        refUser.wallet += val;
+        const refOrder = await orderHistoryModel.create({
+          user: refUser._id,
+          status: "active",
+          desc: `Referral Bonus`,
+          price: val.toFixed(2),
+          type: "Credit",
+          method: "Wallet",
+        });
+        refUser.orderHistory.push(refOrder._id);
+        await refUser.save();
+      }
+    }
+
+    user.store.push(store._id);
+    user.orderHistory.push(order._id);
+    user.wallet += store.credits;
+
+    await user.save();
+    sendPayment(
+      user.email,
+      user.name,
+      store.name,
+      store.price.toFixed(2),
+      order.createdAt,
+      "JordansPicks - Payment Confirmation",
+    );
+
+    return res.send({
+      msg: "success",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "internal server error" });
   }
 };
 

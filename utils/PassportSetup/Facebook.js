@@ -9,8 +9,8 @@ passport.use(
       callbackURL: "/user/auth/facebook/callback",
       profileFields: ["id", "email", "name"],
     },
-    async (accessToken, refreshToken, profile, done) => done(null, profile)
-  )
+    async (accessToken, refreshToken, profile, done) => done(null, profile),
+  ),
 );
 
 module.exports = passport;

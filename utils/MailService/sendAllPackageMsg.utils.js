@@ -7,10 +7,7 @@ const emailtemplateotp = (name, package) => {
     <ul>
     ${
       package &&
-      package.map(
-        (item) =>
-          `<li>${item.name} - ${item.gamePreview}</li>`
-      )
+      package.map((item) => `<li>${item.name} - ${item.gamePreview}</li>`)
     }
     </ul> 
     <p>Don't miss this chance to win big with our expert picks and profit guarantee. Trust us, you'll be laughing all the way to the bank. 😉 </p> 
@@ -34,14 +31,14 @@ const sendOTP = async (email, otp, title, package) => {
     });
 
     const mailOptions = {
-      from:{name : process.env.MAIL_USER,address :process.env.MAIL_EMAIL},
+      from: { name: process.env.MAIL_USER, address: process.env.MAIL_EMAIL },
       to: email,
       subject: title,
       html: emailtemplateotp(otp, package),
     };
 
     const result = await transporter.sendMail(mailOptions);
-    // console.log(result);
+    console.log(result);
     return result;
   } catch (error) {
     console.log(error);

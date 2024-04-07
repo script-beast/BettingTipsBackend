@@ -15,16 +15,16 @@ routes.allUsers = async (req, res) => {
 
     if (name)
       users = allusers.filter((user) =>
-        user.name.toLowerCase().includes(name.toLowerCase())
+        user.name.toLowerCase().includes(name.toLowerCase()),
       );
     if (mobile)
       users = allusers.filter((user) =>
-        user.mobile.toString().includes(mobile)
+        user.mobile.toString().includes(mobile),
       );
 
     if (email)
       users = allusers.filter((user) =>
-        user.email.toLowerCase().includes(email.toLowerCase())
+        user.email.toLowerCase().includes(email.toLowerCase()),
       );
 
     if (!name && !mobile && !email) users = allusers;
@@ -79,7 +79,7 @@ routes.changeUserBalance = async (req, res) => {
     const updatedUser = await userModel.findOneAndUpdate(
       { _id: userId },
       { wallet: wallet },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: updatedUser });
@@ -142,7 +142,7 @@ routes.updateUserStatus = async (req, res) => {
         status,
         remark,
       },
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({ msg: "success", dta: user });

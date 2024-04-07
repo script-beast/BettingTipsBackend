@@ -22,7 +22,7 @@ routes.bulkPackageMail = async (req, res) => {
         user.email,
         user.name,
         "Jordanspicks.com packages out NOW!",
-        data
+        data,
       );
     });
 
@@ -43,7 +43,7 @@ routes.bulkCustomMail = async (req, res) => {
         user.email,
         user.name,
         data,
-        "Jordanspicks.com packages out NOW!"
+        "Jordanspicks.com packages out NOW!",
       );
     });
 
@@ -69,7 +69,7 @@ routes.directupdate = async (req, res) => {
       await userModel.findOneAndUpdate(
         { _id: item._id },
         { referralCode },
-        { new: true }
+        { new: true },
       );
     });
 
